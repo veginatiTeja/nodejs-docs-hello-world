@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "ado-remote-mcp": {
+      "url": "https://mcp.dev.azure.com/smatbotappreview",
+      "type": "http",
+       "headers": {
+        "X-MCP-Tools": "core_list_projects, wit_my_work_items, wit_get_work_items_batch_by_ids"
+      }
+    }
+  },
+  "inputs": []
+}
