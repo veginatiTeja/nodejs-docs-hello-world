@@ -5,14 +5,39 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors')
+const cors = require('cors');
 const crypto = require('crypto');
+const passport = require('passport');
+const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 const pkg = require('./package.json');
 
 
 // App constants
 const port = process.env.PORT || 3000;
 const apiPrefix = '/api';
+const tenantId = process.env.AZURE_AD_TENANT_ID || 'common';
+const clientId = process.env.AZURE_AD_CLIENT_ID;
+
+if (!clientId) {
+  throw new Error('Missing required environment variable AZURE_AD_CLIENT_ID');
+}
+
+const bearerOptions = {
+  identityMetadata: `https://login.microsoftonline.com/${tenantId}/v2.0/.well-known/openid-configuration`,
+  clientID: clientId,
+  audience: clientId,
+  validateIssuer: true,
+  loggingLevel: 'warn',
+  passReqToCallback: false,
+};
+
+passport.use(
+  new BearerStrategy(bearerOptions, (token, done) => {
+    done(null, token);
+  })
+);
+
+const ensureAuthenticated = passport.authenticate('oauth-bearer', { session: false });
 
 // Store data in-memory, not suited for production use!
 const db = {
@@ -47,6 +72,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors({ origin: /http:\/\/(127(\.\d){3}|localhost)/}));
 app.options('*', cors());
+app.use(passport.initialize());
 
 // ***************************************************************************
 
@@ -58,9 +84,18 @@ app.get('/', function (req, res) {
     return res.send("Hello World!");
 })
 
-app.get('/api', function (req, res) {
+app.get('/api', ensureAuthenticated, function (req, res) {
     return res.send("Fabrikam Bank API");
 })
+
+app.get('/api/me', ensureAuthenticated, (req, res) => {
+    return res.json({
+      authenticated: true,
+      user: req.user,
+    });
+});
+
+router.use(ensureAuthenticated);
   
 // ----------------------------------------------
   // Create an account

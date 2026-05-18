@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "ado-remote-mcp": {
+      "url": "https://dev.azure.com/smatbotappreview/",
+      "type": "http",
+      "headers": {
+        "Authorization": "Basic Ijo0Mmt0MUIwczNacUdHQVdnTlhUSGw4alppNmF2ME85RnNvWm9TcXBkdDUzWjE3MThXZzU5SlFRSjk5Q0VBQ0FBQUFBR0Q0ZEJBQUFTQVpET3c4SjE=",
+        "X-MCP-Toolsets": "repos,wiki,wit"
+      }
+    }
+  },
+  "inputs": []
+}
